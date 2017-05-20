@@ -16,19 +16,26 @@ abstract class Core_Observer
 	 *
 	 * Например:
 	 *
-	 * protected $_aEvents = array(
+	 * public $aEvents = array(
 	 *     'shop_item.onBeforeGetXml' => 'onBeforeGetXml',
 	 * );
 	 *
 	 * или 
 	 * 
-	 * protected $_aEvents = array(
+	 * public $aEvents = array(
 	 *     'shop_item.onBeforeGetXml'
 	 * );
 	 *
 	 * @var array
 	 */
-	protected $_aEvents = array();
+	public $aEvents = array();
+
+	/**
+	 * Выводить сообщение при срабатывании события.
+	 *
+	 * @var boolean
+	 */
+	public $verbose = FALSE;
 
 	/**
 	 * Экземпляр объекта.
@@ -44,7 +51,7 @@ abstract class Core_Observer
 	 */
 	static public function attach()
 	{
-		foreach (static::_getEvents() as $event => $method)
+		foreach (static::instance()->_getEvents() as $event => $method)
 		{
 			Core_Event::attach($event, array(__CLASS__, $method));
 		}
@@ -57,7 +64,7 @@ abstract class Core_Observer
 	 */
 	static public function detach()
 	{
-		foreach (static::_getEvents() as $event => $method)
+		foreach (static::instance()->_getEvents() as $event => $method)
 		{
 			Core_Event::detach($event, array(__CLASS__, $method));
 		}
@@ -72,7 +79,14 @@ abstract class Core_Observer
 	 */
 	static public function __callStatic($name, $aArguments)
 	{
-		return call_user_func_array(array(static::_instance(), $name), $aArguments);
+		// Выводим событие и название метода
+		if (static::instance()->verbose)
+		{
+			print static::instance()->_getEventByMethod($name) . " --> "
+				. get_class(static::instance()) . '.' . $name;
+		}
+
+		return call_user_func_array(array(static::instance(), $name), $aArguments);
 	}
 
 	/**
@@ -80,7 +94,7 @@ abstract class Core_Observer
 	 *
 	 * @return mixed
 	 */
-	static protected function _instance()
+	static public function instance()
 	{
 		if (!static::$_instance)
 		{
@@ -99,15 +113,16 @@ abstract class Core_Observer
 	{
 		$aEvents = array();
 
-		foreach (static::_instance()->aEvents as $key => $value)
+		foreach ($this->aEvents as $key => $value)
 		{
 			// Задано событие и обработчик (например, 'shop_item.onBeforeGetXml' = > 'onBeforeGetXml')
 			if (!is_numeric($key))
 			{
 				$event = $key;
-				$metod = $value;
+				$method = $value;
 			}
-			// Задано только событие (например, 'shop_item.onBeforeGetXml')
+			// Задано только событие (например, 'shop_item.onBeforeGetXml'),
+			// в таком случае обработчиком будет одноименный метод события
 			else
 			{
 				$event = $value;
@@ -118,5 +133,16 @@ abstract class Core_Observer
 		}
 
 		return $aEvents;
+	}
+
+	/**
+	 * Возвращает событие по методу.
+	 *
+	 * @param  string  $method
+	 * @return string
+	 */
+	protected function _getEventByMethod($method)
+	{
+		return strval(array_search($method, $this->_getEvents()));
 	}
 }

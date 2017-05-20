@@ -17,6 +17,13 @@ class Shop_Item_Observer_AttachHashedId extends Core_Observer
 	);
 
 	/**
+	 * Выводить сообщение при срабатывании события.
+	 *
+	 * @var boolean
+	 */
+	public $verbose = FALSE;
+
+	/**
 	 * Тег.
 	 *
 	 * @var string

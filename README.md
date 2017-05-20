@@ -29,11 +29,20 @@ class Some_Observer extends Core_Observer
 		
 	}
 }
+
+// Прикрепляем наблюдатель
+Some_Observer::attach();
 ```
 
 ## Пример
 
-[examples/observer.php](examples/observer.php)
+[attachhashedid.php](tests/shop/item/observer/attachhashedid.php)
+
+## Тесты
+
+Для запуска тестов:
+
+```$ vendor/bin/phpunit --test-suffix="test.php" tests/```
 
 ## Лицензия
 MIT
