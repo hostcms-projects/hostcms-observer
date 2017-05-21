@@ -28,7 +28,7 @@ class Core_ObserverTest extends \PHPUnit\Framework\TestCase
 			))
 		);
 
-		// Инциализируем ядро
+		// Инициализируем ядро
 		Testing_Core::init();
 	}
 
